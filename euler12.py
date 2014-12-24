@@ -114,7 +114,14 @@ def numberAndSection(row,chunk):
     startIndex=endIndex-chunkSize
     return int(inputString[startIndex:endIndex])
 
-def main():
-    global numRows
-    print numberAndSection(nuwRows-1,4)
+
+result=0
+
+for chunk in range(0,splitNumber,1):
+    for row in range(0,numRows,1):
+        result+=numberAndSection(row,chunk)
+    if chunk==splitNumber-1:
+        print "Result: ",result
+    result=int(str(result)[0:(len(str(result))-chunkSize)])
+
 
