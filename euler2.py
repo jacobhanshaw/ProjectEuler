@@ -1,32 +1,11 @@
+result = 0
+term0 = 1
+term1 = 1
 
+while term1 < 4000000:
+    term1 += term0
+    term0 = term1 - term0
+    if term1 % 2 == 0:
+        result += term1
 
-def primeFactors(num):
-    results = []
-
-    while num % 2 == 0:
-        results.append(2)
-        num /= 2
-        
-    i=3
-    maxPos=num
-
-    while i < maxPos:
-        
-        if num % i == 0:
-            results.append(i)
-            num /= i
-        else:
-            maxPos=num/i
-            i+=2
-
-    if num > 1:
-        results.append(num)
-
-    print results
-    
-
-
-if __name__ == '__main__':
-    primeFactors(600851475143) # 600851475143
-
-
+print result

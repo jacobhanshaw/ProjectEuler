@@ -1,43 +1,39 @@
+ones = [4,3,3,5,4,4,3,5,5,4] #0-9 words in length
+teens= [3,6,6,8,8,7,7,9,8,8] #10-19 words in length
+tens = [4,3,6,6,5,5,5,7,6,6] #0-90 by ten words in length
+hundred=7
+thousand=8
+andLength=3
 
-import math
+result=0
+number=0
+last=0
 
-inputString="""75
-95 64
-17 47 82
-18 35 87 10
-20 04 82 47 65
-19 01 23 75 03 34
-88 02 77 73 07 63 67
-99 65 04 28 06 16 70 92
-41 41 26 56 83 40 80 70 33
-41 48 72 33 47 32 37 16 94 29
-53 71 44 65 25 43 91 52 97 51 14
-70 11 33 28 77 73 17 78 39 68 17 57
-91 71 52 38 17 14 91 43 58 50 27 29 48
-63 66 04 68 89 53 67 30 73 16 69 87 40 31
-04 62 98 27 23 09 70 98 73 93 38 53 60 04 23
-"""
-
-numWidth=2
-spaceWidth=1
-
-def numberAtIndexInLine(line,i):
-    index=i*(numWidth+spaceWidth)
-    return int(line[index:(index+2)])
-
-lines=inputString.splitlines(True)
-
-maxItemsInRow=int(math.ceil(len(lines[len(lines)-1])/(numWidth+spaceWidth)))
-
-done=False
-resultLine=[]
-
-for i in range(0,maxItemsInRow,1):
-    resultLine.append(numberAtIndexInLine(lines[len(lines)-1],i))
-      
-for lineIndex in range(len(lines)-2,-1,-1):
-    numbersInRow=int(math.ceil(len(lines[lineIndex])/(numWidth+spaceWidth)))
-    for i in range(0,numbersInRow,1):
-        resultLine[i]=numberAtIndexInLine(lines[lineIndex],i) + max(resultLine[i],resultLine[(i+1)])
-
-print "Result: ",resultLine[0]
+for i in range (1,1000+1,1):
+    number=i
+    if number >=1000:
+        result+=ones[int(number/1000)]
+        result+=thousand
+        number%=1000
+    if number >=100:
+        result+=ones[int(number/100)]
+        result+=hundred
+        number%=100
+        if number > 0:
+            result+=andLength
+    if number >=10:
+        if number < 20 and number > 10:
+            number-=10
+            result+=teens[number]
+            number=0
+        else:
+            result+=tens[int(number/10)]
+            number%=10
+    if number >0:
+        result+=ones[number]
+    
+    #print "Number: ",i," Length: ",result-last
+    #last=result
+    
+print "Result: ",result
+        

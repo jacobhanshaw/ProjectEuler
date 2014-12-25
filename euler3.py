@@ -1,20 +1,32 @@
 
-def largestPalindrome(base):
-    base = int(str(base) + str(base)[2] + str(base)[1] + str(base)[0])
 
-    for i in range(999,100,-1):
+def primeFactors(num):
+    results = []
+
+    while num % 2 == 0:
+        results.append(2)
+        num /= 2
         
-        if base % i == 0 and base/i < 999:
-            return base
+    i=3
+    maxPos=num
 
-    return -1
+    while i < maxPos:
+        
+        if num % i == 0:
+            results.append(i)
+            num /= i
+        else:
+            maxPos=num/i
+            i+=2
 
-result = []
+    if num > 1:
+        results.append(num)
 
-for i in range(999,100,-1):
-    result = largestPalindrome(i)
+    print results
+    
 
-    if result <> -1:
-        break
 
-print result
+if __name__ == '__main__':
+    primeFactors(600851475143) # 600851475143
+
+

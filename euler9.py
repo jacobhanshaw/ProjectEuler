@@ -1,27 +1,31 @@
 
+power=2
+goalSum=1000
 
-def isPrime(num):
+found=False
+goalSquare=0
 
-    if num % 2 == 0:
-        return False
+for c in range(goalSum-2,0,-1):
+    goalSquare=c**power
+    
+    for b in range(goalSum-c-1,0,-1):
+
+        a=goalSum-c-b
+
+        if (a**power + b**power)==goalSquare:
+            print "A: ",a," B: ",b," C: ",c
+            print "Goal: ",(a*b*c)
+            found=True
+            break
         
-    i=3
-    maxPos=num
+    if found:
+        break
 
-    while i < maxPos:
-        
-        if num % i == 0:
-            return False
-        else:
-            maxPos=num/i
-            i+=2
+            
+'''
+c > 0
+c^2-b^2=a^2
+a=1000-(b+c)
 
-    return True
-
-result=2
-
-for i in range(3,2000000,2):
-    if isPrime(i):
-        result+=i
-
-print "Result: ",result
+500k=m^2+mn
+'''
