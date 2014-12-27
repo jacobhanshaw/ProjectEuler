@@ -27,6 +27,6 @@ def primeFactors(num):
 
 
 if __name__ == '__main__':
-    primeFactors(600851475143) # 600851475143
+    primeFactors(9) # 600851475143
 
 
