@@ -1,10 +1,9 @@
 import math
 
 def primeFactors(num):
-
-    if num == 0:
-        return {}
-
+#    if num == 0:
+#        return {}
+    
     factors={}
     startNum=num
 
@@ -29,6 +28,9 @@ def primeFactors(num):
     return factors
 
 def allFactors(num):
+#    if num == 0:
+#        return 0
+    
     factors = primeFactors(num).items()
     nfactors = len(factors)
     if nfactors < 1:
@@ -56,20 +58,27 @@ def sumOfList(numList):
         sumList+=numList[i]
     return sumList
 
-def amicable(num):
-    sumFactors=sumOfList((list(allFactors(num))))-num
-    if sumFactors==num:
-        return False
-    sumOfSumFactors=(sumOfList((list(allFactors(sumFactors))))-sumFactors)
-    if num==sumOfSumFactors:
-        return True
+def abundant(num):
+    return (sumOfList((list(allFactors(num))))-num) > num
 
-    return False
 
 result=0
-for i in range(1,10000,1):
-    if amicable(i):
+abundantList=[]
+for i in range(1,28124,1):
+    if abundant(i):
+        abundantList.append(i)
+
+for i in range(1,28124,1):
+    index=0
+    found=False
+    while abundantList[index] < i:
+        if abundant(i-abundantList[index]):
+            found=True
+            break
+        index+=1
+    if not found:
         result+=i
+      
 
 print "Result: ",result
 

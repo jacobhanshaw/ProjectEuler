@@ -3,6 +3,9 @@ import math
 
 def primeFactors(num):
 
+    if num == 0:
+        return {}
+
     factors={}
     startNum=num
 
