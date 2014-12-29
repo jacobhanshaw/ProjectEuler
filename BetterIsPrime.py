@@ -21,6 +21,6 @@ def isPrime(n):
                 return False
             f=f+6
 
-    return true
+    return True
 
 print isPrime(511)
