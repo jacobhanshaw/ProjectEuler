@@ -32,6 +32,7 @@ for i in range(101,1000001,2):
     if not isPrime(i):
         continue
     string=str(i)
+    
     rList=[]
     rotations(string,rList)
 
