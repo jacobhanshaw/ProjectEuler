@@ -29,6 +29,6 @@ while not found:
     if matchingUsed(2*result,used) and matchingUsed(3*result,used) and matchingUsed(4*result,used) and matchingUsed(5*result,used) and matchingUsed(6*result,used):
         found=True
     else:
-        result+=2
+        result+=1
 
 print "Result: ",result
