@@ -24,7 +24,11 @@ found=False
 while not found:
     used=[0] * 9
     setUsed(result,used)
+    if result == 142858:
+        print "Used: ",used
     if matchingUsed(2*result,used) and matchingUsed(3*result,used) and matchingUsed(4*result,used) and matchingUsed(5*result,used) and matchingUsed(6*result,used):
         found=True
+    else:
+        result+=2
 
 print "Result: ",result
