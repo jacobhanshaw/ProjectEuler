@@ -21,4 +21,3 @@ for pd in x:
         result+=int(pdString)
 
 print "Result:",result
-        
