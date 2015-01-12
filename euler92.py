@@ -15,9 +15,7 @@ cache = [-1] * cacheSize
 result=0
 for i in range(1,maxNum):
     num=i
- #   print "Num: ",num
     while num <> 1 and num <> 89:
- #       print "Num: ",num
         num=nextInNumberChain(num)
         if cache[num] <> -1:
             num = 89 if cache[num] == 1 else 1
