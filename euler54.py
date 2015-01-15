@@ -1,5 +1,7 @@
 from enum import Enum
 
+#START
+
 class HAND_RANK(Enum):
     HIGH = 0
     ONE_PAIR = 1
@@ -130,6 +132,6 @@ for line in handsFile:
             for i in range(len(handOneNonPairValues)-1,-1,-1):
                 if handOneNonPairValues[i] > handTwoNonPairValues[i]:
                     playerOneWins+=1
-                    break
+                    break   
 
 print "Result:",playerOneWins
