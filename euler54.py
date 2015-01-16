@@ -1,6 +1,7 @@
 from enum import Enum
 
-#START
+#Sloppy main method. A few points of redundancy. Could make arrays and handle
+#arbitrary number of players. Bored of this one though.
 
 class HAND_RANK(Enum):
     HIGH = 0
@@ -18,18 +19,19 @@ def cardsToNums(cards):
     nums=[]
     for card in cards:
         if card[0] < 'A':
-            if card[0]=='1':
-                nums.append(10)
-            else:
-                nums.append(int(card[0]))
+            nums.append(int(card[0]))
+        elif card[0] == 'T':
+            nums.append(10)
         elif card[0] == 'J':
             nums.append(11)
         elif card[0] == 'Q':
             nums.append(12)
         elif card[0] == 'K':
             nums.append(13)
-        else:
+        elif card[0] == 'A':
             nums.append(14)
+        else:
+            print "Invalid card:",card
 
     return nums
 
@@ -37,46 +39,45 @@ def allSameSuit(cards):
 
     suit=cards[0][len(cards[0])-1]
     for i in range(1,len(cards)):
-        if cards[i][len(cards[0])-1] <> suit:
+        if cards[i][len(cards[i])-1] <> suit:
             return False
 
     return True
 
 def getRank(nums,pairValue,nonPairValues):
     currentRank=HAND_RANK.HIGH
-    i=0
     pairStreak=0
     straightStreak=0
-    while i < len(nums)-1:
+    for i in range(len(nums)-1):
         sameAsNext=(nums[i]==nums[i+1])
         if sameAsNext:
             pairStreak+=1
         else:
+            if pairStreak == 0:
+                nonPairValues.append(nums[i])
             if i == len(nums)-2:
                 nonPairValues.append(nums[len(nums)-1])
-            nonPairValues.append(nums[i])
         if ((not sameAsNext) or i==len(nums)-2) and pairStreak<>0:
             if pairStreak == 3:
-                pairValue[0]+=1000*nums[i]
+                pairValue[0]+=1000000*nums[i]
                 currentRank=HAND_RANK.FOUR
             elif pairStreak == 2:
-                pairValue[0]+=100*nums[i]
+                pairValue[0]+=10000*nums[i]
                 if currentRank == HAND_RANK.ONE_PAIR:
                     currentRank=HAND_RANK.FULL_HOUSE
                 else:
                     currentRank = HAND_RANK.THREE
             else:
-                pairValue[0]+=10*nums[i]
+                pairValue[0]+=100*nums[i]
                 if currentRank == HAND_RANK.THREE:
                     currentRank=HAND_RANK.FULL_HOUSE
                 elif currentRank == HAND_RANK.ONE_PAIR:
                     currentRank=HAND_RANK.TWO_PAIR
                 else:
-                    currentRank == HAND_RANK.ONE_PAIR
+                    currentRank=HAND_RANK.ONE_PAIR
             pairStreak=0
         if (nums[i]==(nums[i+1]-1)):
             straightStreak+=1
-        i+=1
 
     if straightStreak==4:
         return HAND_RANK.STRAIGHT
@@ -85,10 +86,11 @@ def getRank(nums,pairValue,nonPairValues):
 
 playerOneWins=0
 cardsInAHand=5
-
+startWins=0
 handsFile = open("poker.txt")
 
 for line in handsFile:
+    startWins=playerOneWins
     hands=line.rstrip().split(" ")
     handNumsOne=cardsToNums(hands[0:cardsInAHand])
     handNumsOne.sort()
@@ -126,12 +128,17 @@ for line in handsFile:
                 if handNumsOne[i] > handNumsTwo[i]:
                     playerOneWins+=1
                     break
+                elif handNumsOne[i] < handNumsTwo[i]:
+                    break
         elif handOnePairValue[0] > handTwoPairValue[0]:
             playerOneWins+=1
         elif handOnePairValue[0] == handTwoPairValue[0]:
             for i in range(len(handOneNonPairValues)-1,-1,-1):
                 if handOneNonPairValues[i] > handTwoNonPairValues[i]:
                     playerOneWins+=1
-                    break   
+                    break
+                elif handOneNonPairValues[i] < handTwoNonPairValues[i]:
+                    break
 
 print "Result:",playerOneWins
+
