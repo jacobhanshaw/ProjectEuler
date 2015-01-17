@@ -87,7 +87,7 @@ while not found:
                 found=True
                 break
                 
-    start*=10
+    start=end
     end*=10
 
 print "Result:",minResult
