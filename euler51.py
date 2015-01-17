@@ -23,6 +23,7 @@ def findWildCardAnswer(nums,goal):
     while True:
         fittingNums=[]
         for num in nums:
+            
             replaceNum=-1
             fits=True
             stringNum=str(num)
@@ -39,20 +40,18 @@ def findWildCardAnswer(nums,goal):
             if fits:
                 fittingNums.append("".join(listNum))
         
-#        print fittingNums
-        streak=0
+        streak=1
         currentNum=""
         fittingNums.sort()
         lenFittingNums=len(fittingNums)
         for i in range(lenFittingNums):
-            if streak==0:
+            if fittingNums[i]<>currentNum:
+                streak=1
                 currentNum=fittingNums[i]
-            if fittingNums[i]==currentNum:
-                streak+=1
             else:
-                streak=0
+                streak+=1
             if streak==goal:
-                if i+1 < lenFittingNums and fittingNums[i+1] <> currentNum:
+                if i+1 >= lenFittingNums or fittingNums[i+1] <> currentNum:
                     yield currentNum
 
         i = 0
@@ -68,30 +67,27 @@ goal=8
 found=False
 minResult=-1
 
-start=10
-end=100
+start=100
+end=1000
 while not found:
     primes=[]
-    for i in range((start+1),(end+2),2):
+    for i in range((start+1),(end+1),2):
         if isPrime(i):
             primes.append(i)
     wildAnswers=list(findWildCardAnswer(primes,goal))
     for wildAnswer in wildAnswers:
-        if wildAnswer<>"-1":
-            print "Answer:",wildAnswer
-            for i in range(10):
-                tempList=list(wildAnswer)
-                for j in range(len(tempList)):
-                    if tempList[j]=='*':
-                        tempList[j]=str(i)
-                num=int("".join(tempList))
-                if isPrime(num) and (minResult==-1 or num < minResult):
-                    minResult=num
-                    found=True
-                    print "Result:",minResult
-                    break
-        if found:
-            break
+        for i in range(10):
+            tempList=list(wildAnswer)
+            for j in range(len(tempList)):
+                if tempList[j]=='*':
+                    tempList[j]=str(i)
+            num=int("".join(tempList))
+            if isPrime(num) and (minResult==-1 or num < minResult):
+                minResult=num
+                found=True
+                break
                 
     start*=10
     end*=10
+
+print "Result:",minResult
