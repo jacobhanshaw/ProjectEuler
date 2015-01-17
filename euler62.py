@@ -31,12 +31,7 @@ minVal=-1
 while not found:
     cube=current**3
     currentLen=len(str(cube))
-    if currentLen == cubeLen:
-        key=getKey(cube)
-        counts[key] = counts.get(key, 0) + 1
-        if mins.get(key,-1)==-1 or cube < mins[key]:
-            mins[key]=cube
-    else:
+    if currentLen <> cubeLen:
         cubeLen=currentLen
         for key in counts:
             if counts[key]==goal:
@@ -44,6 +39,12 @@ while not found:
                     minVal=mins[key]
                 found=True
         counts={}
+        mins={}
+    
+    key=getKey(cube)
+    counts[key] = counts.get(key, 0) + 1
+    if mins.get(key,-1)==-1 or cube < mins[key]:
+        mins[key]=cube
     current+=1
 
 print "Min: ",minVal
