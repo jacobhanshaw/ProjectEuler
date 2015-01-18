@@ -43,7 +43,7 @@ while not found:
     
     key=getKey(cube)
     counts[key] = counts.get(key, 0) + 1
-    if mins.get(key,-1)==-1 or cube < mins[key]:
+    if mins.get(key,-1)==-1:
         mins[key]=cube
     current+=1
 
