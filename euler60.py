@@ -1,13 +1,9 @@
 """
 Current Plan:
 1. get primes up to 10,000
-2. store in 2D array [len(num)][index] -can narrow to len then binSearch
-    for numbers < 10,000
-3. create set for first prime - dictionary
+2. create set for first prime - dictionary
     [prime]= { candidate numbers }
-    go through candidate numbers, creating dictionaries if not already created
-    upon intersection, see if next set intersects, etc.
-4. profit (first returned should be smallest)
+3. profit (first returned should be smallest)
 """ 
 
 import math
@@ -15,15 +11,7 @@ import math
 # counts[key] = counts.get(key, 0) + 1
 
 def isPrime(n):
-    if n==1:
-        return False
-    elif n<4:
-        return True
-    elif n % 2 == 0:
-        return False
-    elif n<9:
-        return True
-    elif n % 3==0:
+    if n % 3==0:
         return False
     else:
         r=math.floor(math.sqrt(n)) # n rounded to the greatest integer r so that r*r<=n
@@ -51,3 +39,61 @@ def binarySearchArray(array,goal):
             return mid
 
     return -1
+
+def constructSet(primes,startIndex,primeSets,prime):
+    for i in range(startIndex,len(primes)):
+        concatA=str(primes[i])+str(prime)
+        concatB=str(prime)+str(primes[i])
+        if isPrime(int(concatA)) and isPrime(int(concatB)):
+            primeSets.get(prime, []).append(primes[i])
+
+def testSet(currentIntersect,startPrime,primeSets,depth,goal):
+    newIntersect=currentIntersect.intersection(set(primeSets[startPrime]))
+    
+    if len(newIntersect) < goal:
+        return
+        
+    depth+=1
+    if depth==goal:
+        return newIntersect
+     
+    for prime in newIntersect:
+        testSet(newIntersect,prime,primeSets,depth,goal)
+     
+
+goal=3
+maxPrime=10000
+
+primeSets={}
+
+print "Start"
+
+primes=[3,5,7]
+for i in range(11,maxPrime,2):
+    if isPrime(i):
+        primes.append(i)
+
+print "Primes done"
+
+for i in range(len(primes)):
+    primeSets[primes[i]]=[]
+    for j in range(len(primes)):
+        concatA=str(primes[i])+str(primes[j])
+        concatB=str(primes[j])+str(primes[i])
+        if isPrime(int(concatA)) and isPrime(int(concatB)):
+            primeSets[primes[i]].append(primes[j])
+
+print "Sets done"
+
+for i in range(len(primes)):
+    print "Prime: ",primes[i]
+    for j in range(i+1,len(primes)):
+        result=testSet(set(primeSets[primes[i]]),primes[j],primeSets,0,goal)
+        if result:
+            print "Result:",result
+            total=0
+            for num in result:
+                total+=num
+            print "Total:",total
+
+print "Done"
