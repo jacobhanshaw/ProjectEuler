@@ -1,6 +1,6 @@
 def binarySearchArray(array,goal):
     low=0
-    high=len(array)
+    high=len(array)-1
     while low<=high:
         mid=(high+low)//2
         current=array[mid]
@@ -12,3 +12,11 @@ def binarySearchArray(array,goal):
             return mid
 
     return -1
+
+test=[1,3,5,6,7,8,9,10,11,15,20]
+print binarySearchArray(test,-20)
+print binarySearchArray(test,1)
+print binarySearchArray(test,5)
+print binarySearchArray(test,10)
+print binarySearchArray(test,20)
+print binarySearchArray(test,30)

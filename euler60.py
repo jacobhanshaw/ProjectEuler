@@ -27,7 +27,7 @@ def isPrime(n):
 
 def binarySearchArray(array,goal):
     low=0
-    high=len(array)
+    high=len(array)-1
     while low<=high:
         mid=(high+low)//2
         current=array[mid]
@@ -39,36 +39,16 @@ def binarySearchArray(array,goal):
             return mid
 
     return -1
-
-def constructSet(primes,startIndex,primeSets,prime):
-    for i in range(startIndex,len(primes)):
-        concatA=str(primes[i])+str(prime)
-        concatB=str(prime)+str(primes[i])
-        if isPrime(int(concatA)) and isPrime(int(concatB)):
-            primeSets.get(prime, []).append(primes[i])
-
-def testSet(currentIntersect,startPrime,primeSets,depth,goal):
-    newIntersect=currentIntersect.intersection(set(primeSets[startPrime]))
-    
-    if len(newIntersect) < goal:
-        return
-        
-    depth+=1
-    if depth==goal:
-        return newIntersect
-     
-    for prime in newIntersect:
-        testSet(newIntersect,prime,primeSets,depth,goal)
      
 
-goal=3
+goal=5
 maxPrime=10000
 
 primeSets={}
 
 print "Start"
 
-primes=[3,5,7]
+primes=[3,5,7] #skipped 2 on purpose, no prime concatenated with 2 is prime
 for i in range(11,maxPrime,2):
     if isPrime(i):
         primes.append(i)
@@ -77,7 +57,7 @@ print "Primes done"
 
 for i in range(len(primes)):
     primeSets[primes[i]]=[]
-    for j in range(len(primes)):
+    for j in range(i+1,len(primes)):
         concatA=str(primes[i])+str(primes[j])
         concatB=str(primes[j])+str(primes[i])
         if isPrime(int(concatA)) and isPrime(int(concatB)):
@@ -85,15 +65,32 @@ for i in range(len(primes)):
 
 print "Sets done"
 
-for i in range(len(primes)):
-    print "Prime: ",primes[i]
-    for j in range(i+1,len(primes)):
-        result=testSet(set(primeSets[primes[i]]),primes[j],primeSets,0,goal)
-        if result:
-            print "Result:",result
-            total=0
-            for num in result:
-                total+=num
-            print "Total:",total
+minSet=[]
+minSum=-1
 
+for i in range(len(primes)):
+    for j in range(i+1,len(primes)):
+        if binarySearchArray(primeSets[primes[i]],primes[j])==-1:
+            continue
+        intersect=set(primeSets[primes[i]]).intersection(set(primeSets[primes[j]]))
+        if 2+len(intersect) < goal:
+            continue
+        for prime3 in intersect:
+            intersect2=intersect.intersection(set(primeSets[prime3]))
+            if 3+len(intersect) < goal:
+                continue
+            for prime4 in intersect2:
+                intersect3=intersect2.intersection(set(primeSets[prime4]))
+                if len(intersect3) > 0:
+                    totalSet=[primes[i],primes[j],prime3,prime4]
+                    totalSet.extend(list(intersect3))
+                    totalSum=0
+                    for num in list(totalSet):
+                        totalSum+=num
+                    if minSum==-1 or totalSum < minSum:
+                        minSum=totalSum
+                        minSet=totalSet
+
+print "Set:",minSet,"Sum:",minSum
+                                                
 print "Done"
