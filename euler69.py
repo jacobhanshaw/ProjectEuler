@@ -37,6 +37,9 @@ def totient(n):
             
     return result
 
+for i in range(2,11):
+    print totient(i)
+
 """
 maxValue=3
 maxFraction=1.67
