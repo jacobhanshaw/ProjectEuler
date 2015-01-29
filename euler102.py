@@ -23,6 +23,42 @@ If in 3 quadrants or 2 opposite qudarants:
 3. Alternatively, use commonly used dot component method
 """
 
+def dot(vectorA,vectorB):
+    total=0
+    for i in range(len(vectorA)):
+        total+=vectorA[i]*vectorB[i]
+    
+    return total
+
+def subtractVectorBFromA(vectorA,vectorB):
+    result=[]
+
+    for i in range(len(vectorA)):
+        result.append(vectorA[i]-vectorB[i])
+
+    return result
+
+def pointInTriangle(trianglePoints,point):
+    # Compute vectors        
+    v0 = subtractVectorBFromA(trianglePoints[2], trianglePoints[0])
+    v1 = subtractVectorBFromA(trianglePoints[1], trianglePoints[0])
+    v2 = subtractVectorBFromA(point, trianglePoints[0])
+
+    # Compute dot products
+    dot00 = dot(v0, v0)
+    dot01 = dot(v0, v1)
+    dot02 = dot(v0, v2)
+    dot11 = dot(v1, v1)
+    dot12 = dot(v1, v2)
+
+    # Compute barycentric coordinates
+    invDenom = 1.0 / (dot00 * dot11 - dot01 * dot01)
+    u = (dot11 * dot02 - dot01 * dot12) * invDenom
+    v = (dot00 * dot12 - dot01 * dot02) * invDenom
+
+    # Check if point is in triangle
+    return (u >= 0) and (v >= 0) and (u + v < 1)
+
 def quadrant(x,y):
     xZero=x == 0
     yZero=y == 0
@@ -107,5 +143,8 @@ for line in trianglesFile:
                 
     if count <> lastCount:
         continue
-                               
+    
+    if pointInTriangle(points,[0,0]):
+        count+=1
 
+print "Result:",count
