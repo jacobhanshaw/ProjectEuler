@@ -17,14 +17,17 @@ class Dir(Enum):
     RIGHT = 3
     LENGTH = 4
 
-def aStarSearch(matrix, excludeOptions, start, goalWidth):
+def aStarSearch(matrix, excludeOptions, startOptions, goalWidth):
     frontier = PriorityQueue()
-    frontier.put(start, valueAtPoint(matrix,start))
     cameFrom = {}
     costSoFar = {}
-    cameFrom[start] = None
-    costSoFar[start] = 0
-    
+
+    for start in startOptions:
+        frontier.put(start, valueAtPoint(matrix,start))
+        cameFrom[start] = None
+        costSoFar[start] = valueAtPoint(matrix,start)
+
+    current=Point(0,0)
     while not frontier.empty():
         current = frontier.get()
         
@@ -35,12 +38,12 @@ def aStarSearch(matrix, excludeOptions, start, goalWidth):
 
             newCost = costSoFar[current] + valueAtPoint(matrix,nextSpot)
             if nextSpot not in costSoFar or newCost < costSoFar[nextSpot]:
-                costSoFar[nextSpot] = newCost
                 priority = newCost + heuristic(matrix, nextSpot,goalWidth)
                 frontier.put(nextSpot, priority)
                 cameFrom[nextSpot] = current
+                costSoFar[nextSpot] = newCost
     
-    return costSoFar
+    return reconstructPath(current,cameFrom) #, costSoFar[current]
 """
 def A*(matrix,excludeOptions,start,goalWidth)
     closedSet = []    # The set of nodes already evaluated.
@@ -82,9 +85,9 @@ def heuristic(matrix,start,goalWidth):
 def valueAtPoint(matrix,point):
     return int(matrix[point.x][point.y])
 
-def reconstructPath(cameFrom,current):
+def reconstructPath(current,cameFrom):
     totalPath = [current]
-    while current in cameFrom:
+    while current is not None:
         current = cameFrom[current]
         totalPath.append(current)
     return totalPath
@@ -102,7 +105,7 @@ def options(matrix, point, exclude):
         allOptions.append(Point(point.x,point.y+1))
     if point.x - 1 >= 0 and not exclude[Dir.LEFT.value]:
         allOptions.append(Point(point.x-1,point.y))
-    if point.x + 1 < width and not exclude[Dir.RIGHT.value]:
+    if point.x + 1 < width and not exclude[Dir.RIGHT.value]: # REMOVE THIS, SPECIAL CASE AS END POINT HAS COST
         allOptions.append(Point(point.x+1,point.y))
 
     return allOptions
@@ -115,12 +118,22 @@ minPath=-1
 excludeOptions = [0] * Dir.LENGTH.value
 excludeOptions[Dir.LEFT.value]=1
 
+print "Start"
+
 for line in numbersFile:
     matrix.append(line.rstrip().split(","))
 
-for y in range(len(matrix)):
-    pathTotal=aStarSearch(matrix,excludeOptions,Point(0,y),len(matrix[0]))
-    if minPath < 0 or pathTotal < minPath:
-        minPath=pathTotal
+print "Matrix created"
 
-print "Result: ",minPath
+startOptions=[]
+for y in range(len(matrix)):
+    startOptions.append(Point(0,y))
+
+print "Options"
+    
+results = aStarSearch(matrix,excludeOptions,startOptions,6)#len(matrix[0])-1) # WIDTH SHOULD BE MINUS 1, BUT SPECIAL CASE 
+
+for result in results:
+    print result.toString()
+
+#print "Result: ",minPath
