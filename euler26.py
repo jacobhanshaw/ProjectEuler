@@ -8,7 +8,6 @@ for i in range(3,1000,1):
     loops=0
     startIndex=-1
     remainder=10
-    firstRemainder=0
     quotient=""
     current=""
     
