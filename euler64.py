@@ -17,13 +17,13 @@ while square <= maxNum:
 
 for num in range(14,maxNum+1):
 
-#    if num == squares[squareIndex]:
-#        squareIndex+=1
-#        continue
+    if num == squares[squareIndex]:
+        squareIndex+=1
+        continue
     
-    m=0.0
-    d=1.0
-    a=float(floor(sqrt(num)))
+    m=0
+    d=1
+    a=int(floor(sqrt(num)))
     savedSqrt=a
 
     Ms=[]
@@ -35,9 +35,6 @@ for num in range(14,maxNum+1):
     while not found:
         m=d*a-m
         d=(num-m**2)/d
-        if d == 0:
-            print "RAR"
-            break
         a = floor((savedSqrt+m)/d)
         for i in range(len(Ms)):
             if m == Ms[i] and d == Ds[i] and a == As[i]:
