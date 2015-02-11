@@ -17,73 +17,38 @@ perimeter = x+(x-1)+(x-2)
 ceil((perimeter+3)/3)=x
 """
 
-from math import floor,ceil
+import numpy as np
 
-def Square(squares,num):
-    lenSquares=len(squares)
-    if num >= lenSquares:
-        for i in range(lenSquares,int(num)+1):
-            squares.append(i**2)
-
-    return squares[int(num)]
+def getTriplets(triangle,A,B,C,perimeters,maxVal):
+    perimeter=triangle[0]+triangle[1]+triangle[2]
+    if perimeter <= maxVal:
+        perimeters.append(perimeter)
+        getTriplets(A*triangle,A,B,C,perimeters,maxVal)
+        getTriplets(B*triangle,A,B,C,perimeters,maxVal)
+        getTriplets(C*triangle,A,B,C,perimeters,maxVal)
     
-squares=[]
+
+goalTriangles=1
+
+maxVal=1500000
+counts=[0]*(maxVal+1)
+perimeters=[]
+
+A = np.matrix( [[ 1,-2, 2], [ 2,-1, 2], [ 2,-2, 3]] )
+B = np.matrix( [[ 1, 2, 2], [ 2, 1, 2], [ 2, 2, 3]] )
+C = np.matrix( [[-1, 2, 2], [-2, 1, 2], [-2, 2, 3]] )
+
+triangle=np.matrix( [[3],[4],[5]] )
+
+getTriplets(triangle,A,B,C,perimeters,maxVal)
+
+for num in perimeters:
+    for mult in range(num,maxVal+1,num):
+        counts[mult]+=1
 
 count=0
-goalTriangles=1
-nonMultSolutions=[]
-
-for num in range(12,1000):#1500001): #start from given min length
-
-    skip=False
-    triangles=0
-
-    for modNum in nonMultSolutions:
-        if num % modNum == 0:
-            triangles+=1
-            if triangles > goalTriangles:
-                skip=True
-                break
-
-    if skip:
-        continue
-
-    new=(triangles<=0)
-
-    triangles=0 #Prevent counting twice
-    
-    c=ceil((num+3)/3.0)
-    other=(num-c)/2.0
-    while Square(squares,c) < (Square(squares,floor(other))+Square(squares,ceil(other))):
-        c+=1
-        other=(num-c)/2.0
-
-    skip=False
-    while Square(squares,c) <= (Square(squares,(c-1))+Square(squares,(num-c-(c-1)))):
-        b=c-1
-        a=num-c-b
-        cSquared=Square(squares,c)
-        while b > a:
-            otherSide=(Square(squares,b)+Square(squares,a))
-            if cSquared > otherSide:
-                break
-            if cSquared == otherSide:
-                triangles+=1
-                if triangles > goalTriangles:
-                    skip=True
-                break
-            b-=1
-            a+=1
-        if skip:
-            break
-        c+=1
-
-    if new and triangles > 0:
-        nonMultSolutions.append(num)
-
-    if triangles==goalTriangles:
+for numTriangles in counts:
+    if numTriangles == goalTriangles:
         count+=1
-
-#    print "Num:",num,triangles
 
 print "Result:",count
