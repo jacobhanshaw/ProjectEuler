@@ -9,11 +9,6 @@ if os.path.isfile("company_ideas.txt"):
 else:
     ideasFile = open("company_ideas.txt",'w+')
 
-if os.path.isfile("company_names.txt"):
-    namesFile = open("company_names.txt",'r+')
-else:
-    namesFile = open("company_names.txt",'w+')
-
 twoAdjectiveProbability=20
 oneAdjectiveProbability=40
 nounProbability=80

@@ -15,7 +15,14 @@ def reverse(num):
         result+=strNum[i]
 
     return int(result)
+"""
+    reversedNum=0
+    while num > 0:
+        reversedNum = 10 * reversedNum + num % 10;
+        num /= 10;
 
+    return reversedNum
+"""
 def allOdd(num):
 
     while num > 0:
