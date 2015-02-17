@@ -48,28 +48,19 @@ def solveSudoku(sudoku):
 
         for i in range(3):
             for j in range(3):
-#                print "Box:",i,j
-#                print "Box before:",getBox(sudoku,i,j)
+# May comment \/ out as it is redundant, may be quicker to do both though
                 eliminateByOnlyPossibleInGroup(sudoku,unusedGroup,unknownPointsGroup,unknownPointsInBox[i][j],unknownPoints)
                 eliminateByGroups(sudoku,unusedGroup,unknownPointsGroup,unknownPointsInBox[i][j],unknownPoints)
-#                print "Box after :",getBox(sudoku,i,j)
 
         for i in range(len(sudoku)):
-#            print "Row:",i
-#            print "Row before:",getUnsolvedInRow(sudoku,rows,i)
             eliminateByOnlyPossibleInGroup(sudoku,unusedGroup,unknownPointsGroup,unknownPointsInRow[i],unknownPoints)
             eliminateByGroups(sudoku,unusedGroup,unknownPointsGroup,unknownPointsInRow[i],unknownPoints)
-#            print "Row after :",getUnsolvedInRow(sudoku,rows,i)
 
         for i in range(len(sudoku[0])):
-#            print "Col:",i
-#            print "Col before:",getUnsolvedInCol(sudoku,cols,i)
             eliminateByOnlyPossibleInGroup(sudoku,unusedGroup,unknownPointsGroup,unknownPointsInCol[i],unknownPoints)
             eliminateByGroups(sudoku,unusedGroup,unknownPointsGroup,unknownPointsInCol[i],unknownPoints)
-#            print "Col after :",getUnsolvedInCol(sudoku,cols,i)
 
         firstLoop=False
-
                 
 def eliminateByOnlyPossibleInGroup(sudoku,unusedGroup,unknownPointsGroup,unknownPointsKeys,unknownPoints):
     
@@ -77,47 +68,36 @@ def eliminateByOnlyPossibleInGroup(sudoku,unusedGroup,unknownPointsGroup,unknown
         originalVal=unknownPoints[originalKey]
         rest=unknownPoints.copy()
         rest.pop(originalKey,None)
-         
-#        print "Start", decodeKey(originalKey),originalVal
+
         firstDiff=True
         differences=set()
         sameKeys=[originalKey]
         for key,val in rest.items():
-#            print "Test Against:",decodeKey(key),val
             newDiff=originalVal.difference(val)
             if len(newDiff) == 0:
                 differences=set()
                 break
             if len(differences) == 0:
                 if firstDiff:
-#                    print "First Go",newDiff
                     firstDiff=False
                     differences=differences.union(newDiff)
                 else:
                     differences=set()
                     break
             else:
-#                print "EB:",differences,newDiff
                 differences=differences.intersection(newDiff)
-#                print "Next",differences
 
         if len(differences) == 1:
             rowCol=decodeKey(originalKey)
             setPoint(sudoku,rowCol[0],rowCol[1],differences.pop(),unusedGroup,unknownPointsGroup,unknownPoints,originalKey)
 
 def eliminateByGroups(sudoku,unusedGroup,unknownPointsGroup,unknownPointsKeys,unknownPoints):
-    #factors = primeFactors(num).items()
     lenPoints=len(unknownPointsKeys)
- #   if lenPoints == 1:
-#        key=unknownPointsKeys[0]
-#        rowCol=decodeKey(key)
-#        print "RC:",rowCol
-#        print "Key:",key
-#        print "UnknownPointsKeys:",unknownPointsKeys
-#        print "UnknownPoints:",unknownPoints
-#        print "UNUSED:",unusedGroup
-#        setPoint(sudoku,rowCol[0],rowCol[1],unknownPoints[key].pop(),unusedGroup,unknownPointsGroup,unknownPoints,key)
-#        return
+    if lenPoints == 1:
+        key=unknownPointsKeys[0]
+        rowCol=decodeKey(key)
+        setPoint(sudoku,rowCol[0],rowCol[1],unknownPoints[key].pop(),unusedGroup,unknownPointsGroup,unknownPoints,key)
+        return
     
     f = [0] * lenPoints
 
@@ -127,15 +107,11 @@ def eliminateByGroups(sudoku,unusedGroup,unknownPointsGroup,unknownPointsKeys,un
         if count > 1:
             otherKeys=[]
             allOptions=set()
-            #print f
             for j in range(lenPoints):
                 if f[j] == 1:
-                    #print "Unknown:",unknownPoints[unknownPointsKeys[j]]
                     allOptions=allOptions.union(unknownPoints[unknownPointsKeys[j]])
                 else:
                     otherKeys.append(unknownPointsKeys[j])
-
-            #print count,allOptions
             
             if count >= len(allOptions):
                 for key in otherKeys:
@@ -150,6 +126,11 @@ def eliminateByGroups(sudoku,unusedGroup,unknownPointsGroup,unknownPointsKeys,un
             count-= f[i]
             f[i] = 0
             i += 1
+
+    for key in unknownPointsKeys:
+        if len(unknownPoints[key]) == 1:
+            rowCol=decodeKey(key)
+            setPoint(sudoku,rowCol[0],rowCol[1],unknownPoints[key].pop(),unusedGroup,unknownPointsGroup,unknownPoints,key)
             
 def makeKey(row,col):
     return (row+1)*10+(col+1)
@@ -161,14 +142,9 @@ def setPoint(sudoku,row,col,value,unusedGroup,unknownPointsGroup,unknownPoints,k
 #    print "Make:",row,col,"to",value
     sudoku[row][col]=value
 
-#    if row == 1:
-#        print "Before",unusedGroup[Group.ROW.value][row],value
-    if len(unusedGroup[Group.ROW.value][row]) > 0:
-        unusedGroup[Group.ROW.value][row].remove(value)
-    if len(unusedGroup[Group.COL.value][col]) > 0:
-        unusedGroup[Group.COL.value][col].remove(value)
-    if len(unusedGroup[Group.BOX.value][row//3][col//3]) > 0:
-        unusedGroup[Group.BOX.value][row//3][col//3].remove(value)
+    unusedGroup[Group.ROW.value][row].remove(value)
+    unusedGroup[Group.COL.value][col].remove(value)
+    unusedGroup[Group.BOX.value][row//3][col//3].remove(value)
 
     try:
         unknownPointsGroup[Group.ROW.value][row].remove(key)
@@ -182,17 +158,20 @@ def setPoint(sudoku,row,col,value,unusedGroup,unknownPointsGroup,unknownPoints,k
         unknownPointsGroup[Group.BOX.value][row//3][col//3].remove(key)
     except ValueError:
         pass
-    
+
+    valueSet=set([value])
     unknownPoints.pop(key,None)
 
-def removeOptions(sudoku,row,col,options,unusedGroup,unknownPointsGroup,unknownPoints,key):
-#    if row == 1 and col == 2:
-#        print "Remove:",row,col,"options",options
+    for key in unknownPointsGroup[Group.ROW.value][row]:
+        unknownPoints[key]=unknownPoints[key].difference(valueSet)
+        
+    for key in unknownPointsGroup[Group.COL.value][col]:
+        unknownPoints[key]=unknownPoints[key].difference(valueSet)
+        
+    for key in unknownPointsGroup[Group.BOX.value][row//3][col//3]:
+        unknownPoints[key]=unknownPoints[key].difference(valueSet)
 
-    unusedGroup[Group.ROW.value][row]=[]
-    unusedGroup[Group.COL.value][col]=[]
-    unusedGroup[Group.BOX.value][row//3][col//3]=[]
-    
+def removeOptions(sudoku,row,col,options,unusedGroup,unknownPointsGroup,unknownPoints,key):    
     unknownPoints[key]=unknownPoints[key].difference(options)
                 
 def getUnusedInRow(sudoku,rows,row):
@@ -261,6 +240,28 @@ def getBox(sudoku,row,col):
 
     return box
 
+def printSudoku(sudoku):
+    for i in range(len(sudoku)):
+        print sudoku[i]
+
+def validSudoku(sudoku):
+    valid=True
+
+    rows=[[],[],[],[],[],[],[],[],[]]
+    for i in range(len(sudoku)):
+        valid &= len(getUnusedInRow(sudoku,rows,i))==0
+
+    cols=[[],[],[],[],[],[],[],[],[]]
+    for i in range(len(sudoku[0])):
+        valid &= len(getUnusedInCol(sudoku,cols,i))==0
+
+    boxes=[[[],[],[]],[[],[],[]],[[],[],[]]]
+    for i in range(3):
+        for j in range(3):
+            valid &= len(getUnusedInBox(sudoku,boxes,i,j))==0
+
+    return valid
+
 sudokuRows=9
 sudokuCols=9
 
@@ -277,9 +278,13 @@ while line <> "":
             sudokuRow.append(int(sudokuLine[j]))
         sudoku.append(sudokuRow)
 
-    print "Before:",sudoku
+    print "Before:"
+    printSudoku(sudoku)
     solveSudoku(sudoku)
-    print "After:",sudoku
+    print "After:"
+    printSudoku(sudoku)
+
+    print "Valid:",validSudoku(sudoku)
 
     sumOfTopLeft+= 100 * sudoku[0][0] + 10 * sudoku[0][1] + sudoku[0][2]
     line=sudokuFile.readline()
