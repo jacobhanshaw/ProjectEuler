@@ -1,8 +1,17 @@
 from enum import Enum
+from copy import deepcopy
 
-#AVOIDING GLOBALS GOT SUPER MESSY
+#UGH A BILLION SCOPE ISSUES!
+#REEEEEALLY had to come to grips with the fact that lists passed by reference could not be re-assigned to a new list
+#All this needs scraped
 
-#NEED TO TRACK ALL COMPUTER CHOICES SINCE GUESSING STARTED
+#Would like to change to use binary logic instead.
+#0 = 0
+#1 = 1
+#2 = 1 << 1
+#3 = 1 << 2
+#...
+#Sets are or'd together for union, and'd for intersection, and and'd with not the number to remove.
 
 class Group(Enum):
     ROW=0
@@ -10,12 +19,30 @@ class Group(Enum):
     BOX=2
     LEN=3
 
+class State:
+
+    def __init__(self,sudoku,rows=None, cols=None, boxes=None, unknownPoints=None, \
+                 unknownPointsInRow=None, unknownPointsInCol=None, unknownPointsInBox=None):
+        self.sudoku = sudoku
+        self.rows = rows or [[],[],[],[],[],[],[],[],[]]
+        self.cols = cols or [[],[],[],[],[],[],[],[],[]]
+        self.boxes = boxes or [[[],[],[]],[[],[],[]],[[],[],[]]]
+
+        self.unknownPoints = unknownPoints or {}
+        self.unknownPointsInRow = unknownPointsInRow or [[],[],[],[],[],[],[],[],[]]
+        self.unknownPointsInCol = unknownPointsInCol or [[],[],[],[],[],[],[],[],[]]
+        self.unknownPointsInBox = unknownPointsInBox or [[[],[],[]],[[],[],[]],[[],[],[]]]
+
+#NEED TO TRACK ALL COMPUTER CHOICES SINCE GUESSING STARTED
+
 def solveSudoku(sudoku):
+
     rows=[[],[],[],[],[],[],[],[],[]]
     cols=[[],[],[],[],[],[],[],[],[]]
     boxes=[[[],[],[]],[[],[],[]],[[],[],[]]]
     unusedGroup=[rows,cols,boxes]
 
+    unknownPoints={}
     unknownPointsInRow=[[],[],[],[],[],[],[],[],[]]
     unknownPointsInCol=[[],[],[],[],[],[],[],[],[]]
     unknownPointsInBox=[[[],[],[]],[[],[],[]],[[],[],[]]]
@@ -23,29 +50,26 @@ def solveSudoku(sudoku):
 
     lastCount=-1
     firstLoop = True
-    unknownPoints={}
 
+    states=[]       #Push before adding guess
     badGuess=False
     guessedKeys=[]
     unguessedValues={}
     currentGuessAlternateOptions=set([])
-
-    startedGuessing=False
-    filledWhileGuessingKeys=[]
-    filledWhileGuessingValues={}
-    filledWhileGuessingOptions={}
     
     while len(unknownPoints) or firstLoop:
 
+ #       if badGuess:
+ #           printSudoku(sudoku)
+
         if len(unknownPoints) == lastCount or badGuess:
-            print "Guessing"
+            changes = guess(sudoku,states,unusedGroup,unknownPointsGroup,unknownPoints,badGuess,guessedKeys,unguessedValues,currentGuessAlternateOptions)
+            sudoku = changes[0]
+            unknownPoints = changes[1]
+            currentGuessAlternateOptions = changes[2]
+            badGuess=False
 
-#            if startedGuessing and badGuess:
 
-#                    startedGuessing,filledWhileGuessingKeys,filledWhileGuessingValues,filledWhileGuessingOptions
-            
-            startedGuessing=True
-            currentGuessAlternateOptions = guess(sudoku,unusedGroup,unknownPointsGroup,unknownPoints,badGuess,guessedKeys,unguessedValues,currentGuessAlternateOptions)
             
         lastCount=len(unknownPoints)
         
@@ -53,11 +77,11 @@ def solveSudoku(sudoku):
             for j in range(len(sudoku[0])):
                 current=sudoku[i][j]
                 if sudoku[i][j] == 0:
-                    rowOptions=getUnusedInRow(sudoku,rows,i)
-                    colOptions=getUnusedInCol(sudoku,cols,j)
-                    boxOptions=getUnusedInBox(sudoku,boxes,i//3,j//3)
+                    rowOptions=getUnusedInRow(sudoku,unusedGroup[Group.ROW.value],i)
+                    colOptions=getUnusedInCol(sudoku,unusedGroup[Group.COL.value],j)
+                    boxOptions=getUnusedInBox(sudoku,unusedGroup[Group.BOX.value],i//3,j//3)
                     if rowOptions==-1 or colOptions==-1 or boxOptions==-1:
-                        print "Wrong guess"
+ #                       print "Intersect Wrong guess",i,j
                         badGuess=True
                         break
                     
@@ -70,7 +94,9 @@ def solveSudoku(sudoku):
                         options=options.intersection(unknownPoints[key])
 
                     if len(options) == 0:
+ #                       print "Options wrong guess",i,j
                         badGuess=True
+                        break
                     elif len(options) == 1:
                         setPoint(sudoku,i,j,options.pop(),unusedGroup,unknownPointsGroup,unknownPoints,key)
                     else:
@@ -86,33 +112,55 @@ def solveSudoku(sudoku):
             for i in range(3):
                 for j in range(3):
 # May comment \/ out as it is redundant, may be quicker to do both though
-                    eliminateByOnlyPossibleInGroup(sudoku,unusedGroup,unknownPointsGroup,unknownPointsInBox[i][j],unknownPoints)
-                    badGuess = not eliminateByGroups(sudoku,unusedGroup,unknownPointsGroup,unknownPointsInBox[i][j],unknownPoints)
+                    eliminateByOnlyPossibleInGroup(sudoku,unusedGroup,unknownPointsGroup,unknownPointsGroup[2][i][j],unknownPoints)
+                    badGuess = not eliminateByGroups(sudoku,unusedGroup,unknownPointsGroup,unknownPointsGroup[2][i][j],unknownPoints)
                     if badGuess:
+ #                       print "BOX Wrong guess",i,j
                         break
                 if badGuess:
                         break
         if not badGuess:
             for i in range(len(sudoku)):
-                eliminateByOnlyPossibleInGroup(sudoku,unusedGroup,unknownPointsGroup,unknownPointsInRow[i],unknownPoints)
-                badGuess = not eliminateByGroups(sudoku,unusedGroup,unknownPointsGroup,unknownPointsInRow[i],unknownPoints)
+                eliminateByOnlyPossibleInGroup(sudoku,unusedGroup,unknownPointsGroup,unknownPointsGroup[0][i],unknownPoints)
+                badGuess = not eliminateByGroups(sudoku,unusedGroup,unknownPointsGroup,unknownPointsGroup[0][i],unknownPoints)
                 if badGuess:
-                        break
+ #                   print "ROW Wrong guess",i
+                    break
                 
         if not badGuess:
             for i in range(len(sudoku[0])):
-                eliminateByOnlyPossibleInGroup(sudoku,unusedGroup,unknownPointsGroup,unknownPointsInCol[i],unknownPoints)
-                badGuess = not eliminateByGroups(sudoku,unusedGroup,unknownPointsGroup,unknownPointsInCol[i],unknownPoints)
+                eliminateByOnlyPossibleInGroup(sudoku,unusedGroup,unknownPointsGroup,unknownPointsGroup[1][i],unknownPoints)
+                badGuess = not eliminateByGroups(sudoku,unusedGroup,unknownPointsGroup,unknownPointsGroup[1][i],unknownPoints)
                 if badGuess:
-                        break
+ #                   print "COL Wrong guess",j
+                    break
 
         firstLoop=False
+        
+    return 100 * sudoku[0][0] + 10 * sudoku[0][1] + sudoku[0][2]
 
 
-def guess(sudoku,unusedGroup,unknownPointsGroup,unknownPoints,badGuess,guessedKeys,unguessedValues,currentGuessAlternateOptions):
+def guess(sudoku,states,unusedGroup,unknownPointsGroup,unknownPoints,badGuess,guessedKeys,unguessedValues,currentGuessAlternateOptions):
     key=-1
+
+#    printSudoku(sudoku)
+    
     if badGuess:
-        print "BAD GUESS"
+ #       print "BAD GUESS"
+ #       print "Guessed:",guessedKeys
+ #       print "Alt:",currentGuessAlternateOptions
+
+        #Return state
+        state=states.pop()
+        sudoku=state.sudoku
+        unusedGroup[Group.ROW.value]=state.rows
+        unusedGroup[Group.COL.value]=state.cols
+        unusedGroup[Group.BOX.value]=state.boxes
+
+        unknownPoints=state.unknownPoints
+        unknownPointsGroup[Group.ROW.value]=state.unknownPointsInRow
+        unknownPointsGroup[Group.COL.value]=state.unknownPointsInCol
+        unknownPointsGroup[Group.BOX.value]=state.unknownPointsInBox
 
         if len(currentGuessAlternateOptions) > 0:
             key=guessedKeys[len(guessedKeys)-1]
@@ -120,10 +168,6 @@ def guess(sudoku,unusedGroup,unknownPointsGroup,unknownPoints,badGuess,guessedKe
             guessedKeys.pop()
             key=guessedKeys[len(guessedKeys)-1]
             currentGuessAlternateOptions=unguessedValues[key]
-            
-        rowCol=decodeKey(key)
-        wrongValue=sudoku[rowCol[0]][rowCol[1]]
-        unsetPoint(sudoku,rowCol[0],rowCol[1],wrongValue,unusedGroup,unknownPointsGroup,unknownPoints,key,currentGuessAlternateOptions.copy())
     else:               
         for possibleKey in unknownPoints.keys():
             if possibleKey not in guessedKeys:
@@ -131,13 +175,20 @@ def guess(sudoku,unusedGroup,unknownPointsGroup,unknownPoints,badGuess,guessedKe
                 break
         guessedKeys.append(key)
         currentGuessAlternateOptions=unknownPoints[key].copy()
+    
+    #Set state
+    state=State(deepcopy(sudoku),deepcopy(unusedGroup[Group.ROW.value]),deepcopy(unusedGroup[Group.COL.value]), deepcopy(unusedGroup[Group.BOX.value]), deepcopy(unknownPoints), \
+        deepcopy(unknownPointsGroup[Group.ROW.value]), deepcopy(unknownPointsGroup[Group.COL.value]), deepcopy(unknownPointsGroup[Group.BOX.value]))
+    states.append(state)
     guess = currentGuessAlternateOptions.pop()
     unguessedValues[key]=currentGuessAlternateOptions
     rowCol=decodeKey(key)
+
+ #   print "Guessing:",guess,"for",rowCol
     
     setPoint(sudoku,rowCol[0],rowCol[1],guess,unusedGroup,unknownPointsGroup,unknownPoints,key)
 
-    return currentGuessAlternateOptions
+    return [sudoku,unknownPoints,currentGuessAlternateOptions]
     
 def eliminateByOnlyPossibleInGroup(sudoku,unusedGroup,unknownPointsGroup,unknownPointsKeys,unknownPoints):
     
@@ -222,7 +273,7 @@ def decodeKey(key):
     return ((key//10-1),(key%10-1))
 
 def setPoint(sudoku,row,col,value,unusedGroup,unknownPointsGroup,unknownPoints,key):
-#    print "Make:",row,col,"to",value
+    #print "Make:",row,col,"to",value
     sudoku[row][col]=value
 
     unusedGroup[Group.ROW.value][row].remove(value)
@@ -255,7 +306,7 @@ def setPoint(sudoku,row,col,value,unusedGroup,unknownPointsGroup,unknownPoints,k
         unknownPoints[key]=unknownPoints[key].difference(valueSet)
 
 def unsetPoint(sudoku,row,col,value,unusedGroup,unknownPointsGroup,unknownPoints,key,options):
-#    print "Make:",row,col,"to",value
+    print "Unset:",row,col,"to",value
     sudoku[row][col]=0
 
     unusedGroup[Group.ROW.value][row].append(value)
@@ -398,13 +449,13 @@ while line <> "":
 
 #    print "Before:"
  #   printSudoku(sudoku)
-    solveSudoku(sudoku)
+    sumOfTopLeft+=solveSudoku(sudoku)
 #    print "After:"
 #    printSudoku(sudoku)
 
-    print "Valid:",validSudoku(sudoku)
+#    print "Valid:",validSudoku(sudoku)
 
-    sumOfTopLeft+= 100 * sudoku[0][0] + 10 * sudoku[0][1] + sudoku[0][2]
+ #   sumOfTopLeft+= 100 * sudoku[0][0] + 10 * sudoku[0][1] + sudoku[0][2]
     line=sudokuFile.readline()
 
 print "Result: ",sumOfTopLeft
