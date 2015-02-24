@@ -38,3 +38,15 @@ pdInt=int(pdString)
 
 #Whole Number
 .is_integer()
+
+#Palindrome
+def isPalindrome(num):
+    strNum=str(num)
+    midStr = len(strNum)/2
+    if strNum[:midStr]==strNum[-midStr:][::-1]:
+        return True
+    
+    return False
+
+print isPalindrome(352253)
+print isPalindrome(3528253)
