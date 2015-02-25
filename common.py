@@ -42,8 +42,9 @@ pdInt=int(pdString)
 #Palindrome
 def isPalindrome(num):
     strNum=str(num)
-    midStr = len(strNum)/2
-    if strNum[:midStr]==strNum[-midStr:][::-1]:
+    midStr = len(strNum)//2
+    
+    if midStr == 0 or strNum[:midStr]==strNum[-midStr:][::-1]:
         return True
     
     return False

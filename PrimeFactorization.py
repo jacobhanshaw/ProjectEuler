@@ -33,7 +33,8 @@ def allFactors(num):
     nfactors = len(factors)
     if nfactors < 1:
         yield 1
-        yield num
+        if num > 1:
+            yield num
         return
     
     f = [0] * nfactors
