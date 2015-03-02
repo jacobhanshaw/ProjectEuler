@@ -35,16 +35,31 @@ Odds
 #odd followed by zero or eight
 #even followed by two
 
+def binarySearchArray(array,goal):
+    low=0
+    high=len(array)-1
+    while low<=high:
+        mid=(high+low)//2
+        current=array[mid]
+        if goal < current:
+            high=mid-1
+        elif goal > current:
+            low=mid+1
+        else:
+            return mid
+
+    return -1
+
+def primeCheck(n,primes):
+    lenNum = len(str(n))
+
+    if lenNum < len(primes):
+        return binarySearchArray(primes[lenNum],n) <> -1
+
+    return isPrime(n)
+
 def isPrime(n):
-    if n==1:
-        return False
-    elif n<4:
-        return True
-    elif n % 2 == 0:
-        return False
-    elif n<9:
-        return True
-    elif n % 3==0:
+    if n % 3==0:
         return False
     else:
         r=math.floor(math.sqrt(n)) # n rounded to the greatest integer r so that r*r<=n
@@ -109,18 +124,20 @@ def allFactors(num):
             if i >= nfactors:
                 return
 
-def sumOfFactorsArePrime(num):
+def sumOfFactorsArePrime(num,primes):
     factors = list(allFactors(num))
+    factors.sort()
     lenFactors = len(factors)
 
     center = int(math.ceil(lenFactors/2.0))
     for i in range(center):
         combined=(factors[i]+factors[(lenFactors-i-1)])
-        if not isPrime(combined):
+        if not primeCheck(num,primes):
             return False
     
     return True
-
+primes = [[]]
+primes.append([2,3,5,7])
 total = 9 #pre-add in one,two, and six
 maxNum = 100000000
 
@@ -130,22 +147,41 @@ maxNum = 100000000
 
 print "Start"
 
+num = 11
+nextMax = 100
+numLen = 2
+maxLen = len(str((maxNum+1)))
+while numLen < 7: #maxLen:
+    primes.append([])
+    while num < nextMax:
+        if isPrime(num):
+            primes[numLen].append(num)
+        num += 2
+    numLen += 1
+    nextMax *= 10
+"""
+primes.append([])
+if isPrime((maxNum+1)):
+    primes[maxLen].append((maxNum+1))
+"""
+print "Primes Done"
+
 for num in range(22,maxNum+1,20):
-    if sumOfFactorsArePrime(num):
+    if sumOfFactorsArePrime(num,primes):
         total += num
 
 print "2's Done"
 
 for num in range(10,maxNum+1,20):
-    if sumOfFactorsArePrime(num):
+    if sumOfFactorsArePrime(num,primes):
         total += num
 
 print "0's Done"
         
 for num in range(18,maxNum+1,20):
-    if sumOfFactorsArePrime(num):
+    if sumOfFactorsArePrime(num,primes):
         total += num
 
 print "8's Done"
-        
+       
 print "Result:",total

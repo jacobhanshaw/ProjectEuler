@@ -57,19 +57,47 @@ def sumOfList(numList):
     return sumList
 
 def amicable(num):
-    sumFactors=sumOfList((list(allFactors(num))))-num
-    if sumFactors==num:
-        return False
-    sumOfSumFactors=(sumOfList((list(allFactors(sumFactors))))-sumFactors)
-    if num==sumOfSumFactors:
-        return True
+    return (sumOfList((list(allFactors(num))))-num)
 
-    return False
+def floydCycle(f,x0,maxCycleVal):
 
+    smallest = x0
+    tortoise = f(x0)
+    hare = f(tortoise)
+    while tortoise <> hare:
+        if tortoise > maxCycleVal:
+            return -1,-1
+        hare = f(f(hare))
+        tortoise = f(tortoise)
+    
+    mu = 0
+    tortoise = x0
+    while tortoise <> hare:
+        hare = f(hare)
+        tortoise = f(tortoise)
+        if tortoise < smallest:
+            smallest = tortoise
+
+        mu += 1
+
+    lam = 1
+    hare = f(tortoise)
+    while tortoise <> hare:
+        hare = f(hare)
+        lam +=1
+
+    return lam, smallest
+
+maxLen=0
 result=0
-for i in range(1,10000,1):
-    if amicable(i):
-        result+=i
+maxCycleVal=1000000
+
+for i in range(1,10000000,1):
+    values = floydCycle(amicable,i,maxCycleVal)
+    if values[0] > maxLen:
+        print "Len:",values[0],values[1]
+        maxLen = values[0]
+        result = values[1]
 
 print "Result: ",result
 
