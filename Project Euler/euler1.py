@@ -4,11 +4,7 @@ def sumOfNumsUpToN(n):
     return n * (n+1) / 2
 
 def sumOfDivByNumUpToMax(num,maxVal):
-    maxMod = maxVal
-    while maxMod % num <> 0:
-        maxMod -= 1
-
-    n = maxMod / num
+    n = maxVal // num
     
     return num * sumOfNumsUpToN(n)
 
@@ -29,7 +25,9 @@ maxVal = 999
 tm0 = timeit.Timer("method0("+str(maxVal)+")",setup="from __main__ import method0")
 tm1 = timeit.Timer("method1("+str(maxVal)+")",setup="from __main__ import method1")
 
+print "Result:",method0(maxVal)
 print "Method 0:",min(tm0.repeat(number=execs))/execs
+print "Result:",method1(maxVal)
 print "Method 1:",min(tm1.repeat(number=execs))/execs
 
 """
