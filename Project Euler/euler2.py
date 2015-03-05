@@ -17,13 +17,15 @@ def method1(maxVal):
     b = 8
     c = 34
     result = a+b
-    while c < maxVal:
+    while c <= maxVal:
         result += c
-        a,b,c = b,c,(4 * b + a)
+        a = b
+        b = c
+        c = 4 * b + a
         
     return result
 
-execs = 100
+execs = 100000
 maxVal = 4000000
 
 tm0 = timeit.Timer("method0("+str(maxVal)+")",setup="from __main__ import method0")
