@@ -1,23 +1,23 @@
 import timeit
-
+  
 def sumOfNumsUpToN(n):
-    return n * (n+1) / 2
+  return n * (n+1) / 2
 
 def sumOfDivByNumUpToMax(num,maxVal):
-    n = maxVal // num
-    
-    return num * sumOfNumsUpToN(n)
+  n = maxVal // num
+  
+  return num * sumOfNumsUpToN(n)
 
 def method0(maxVal):
-    total = 0
-    for x in range (maxVal+1):
-        if (x % 3 == 0) or (x % 5 == 0):
-            total += x
+  total = 0
+  for x in range (maxVal+1):
+    if (x % 3 == 0) or (x % 5 == 0):
+      total += x
 
-    return total    
+  return total    
 
 def method1(maxVal):
-    return sumOfDivByNumUpToMax(3,maxVal) + sumOfDivByNumUpToMax(5,maxVal) - sumOfDivByNumUpToMax((3*5),maxVal)
+  return sumOfDivByNumUpToMax(3,maxVal) + sumOfDivByNumUpToMax(5,maxVal) - sumOfDivByNumUpToMax((3*5),maxVal)
 
 execs = 100
 maxVal = 999
